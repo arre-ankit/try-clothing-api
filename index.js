@@ -4,6 +4,10 @@ import { Client } from '@gradio/client';
 const app = express();
 app.use(express.json());
 
+app.get('/', (req, res) => {
+    res.send('Hello World!');
+});
+
 app.post('/process-images', async (req, res) => {
   try {
     // Fetch images from URLs in the request body
