@@ -1,6 +1,5 @@
 import express from 'express';
 import { Client } from '@gradio/client';
-import fetch from 'node-fetch';
 
 const app = express();
 app.use(express.json());
