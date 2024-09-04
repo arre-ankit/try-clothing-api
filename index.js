@@ -73,8 +73,8 @@ app.post('/process-images', async (req, res) => {
   }
 });
 
-app.listen(3001, () => {
-  console.log('Backend service is running on port 3001');
+app.listen(3005, () => {
+  console.log('Backend service is running on port 3005');
 });
 
 export default app;
