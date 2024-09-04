@@ -4,7 +4,7 @@ import cors from 'cors';
 import { Client } from '@gradio/client';
 
 const app = express();
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '50mb' }));
 
 app.use(cors({
   origin: '*',
@@ -18,6 +18,7 @@ app.post('/process-images', async (req, res) => {
 
     // Fetch the Amazon page and extract the image URL
     const amazonResponse = await axios.get(amazon_img_url, {
+      timeout: 5000,
       headers: {
         // Include necessary headers
       }
