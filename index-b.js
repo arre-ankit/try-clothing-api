@@ -55,13 +55,17 @@ app.post('/process-images', async (req, res) => {
       fetchImageAsBlob(amazonImageUrl)
     ]);
 
-    const client = await Client.connect("Kwai-Kolors/Kolors-Virtual-Try-On");
-    const result = await client.predict("/tryon", { 
-				person_img: exampleImage, 
-				garment_img: exampleImage_a, 		
-		seed: 0, 		
-		randomize_seed: true, 
-    }).catch(error => {
+    const client = await Client.connect("Nymbo/Virtual-Try-On");
+
+    const result = await client.predict("/tryon", [
+      { "background": exampleImage, "layers": [], "composite": null }, 
+      exampleImage_a,
+      "Hello!!",
+      true,
+      true,
+      25,
+      25,
+    ]).catch(error => {
       console.error("Prediction Error Details:", JSON.stringify(error, null, 2));
       throw new Error(`Prediction Error: ${error.message || JSON.stringify(error)}`);
     });
