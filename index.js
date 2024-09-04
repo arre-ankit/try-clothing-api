@@ -4,7 +4,7 @@ import cors from 'cors';
 import { Client } from '@gradio/client';
 
 const app = express();
-app.use(express.json({ limit: '50mb' }));
+app.use(express.json({ limit: '10mb' }));
 
 app.use(cors({
   origin: '*',
@@ -12,13 +12,27 @@ app.use(cors({
   allowedHeaders: ['Content-Type']
 }));
 
+// Utility function to fetch and return blob data from a URL
+const fetchImageAsBlob = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch image: ${response.statusText}`);
+    }
+    return await response.blob();
+  } catch (error) {
+    console.error(`Error fetching image from ${url}:`, error);
+    throw error;
+  }
+};
+
 app.post('/process-images', async (req, res) => {
   try {
     const { amazon_img_url, model_img_url } = req.body;
 
-    // Fetch the Amazon page and extract the image URL
+    // Fetch the Amazon page and extract the image URL with a timeout
     const amazonResponse = await axios.get(amazon_img_url, {
-      timeout: 5000,
+      timeout: 5000, // 5 seconds timeout
       headers: {
         // Include necessary headers
       }
@@ -28,22 +42,23 @@ app.post('/process-images', async (req, res) => {
     const imgPattern = /https:\/\/m\.media\-amazon\.com\/images\/[^"]+\.jpg/g;
     const imageUrls = htmlContent.match(imgPattern) || [];
     
-    // Extract the first image URL
     const pattern = /^https:\/\/m\.media-amazon\.com\/images\/I\/.+/;
     const amazonImageUrl = imageUrls.find(url => pattern.test(url)) || '';
 
-    // Fetch images from URLs
-    const response0 = await fetch(model_img_url);
-    const exampleImage = await response0.blob();
+    if (!amazonImageUrl) {
+      return res.status(400).json({ error: "No valid Amazon image URL found" });
+    }
 
-    const response1 = await fetch(amazonImageUrl);
-    const exampleImage_a = await response1.blob();
+    // Fetch images in parallel and handle potential errors
+    const [exampleImage, exampleImage_a] = await Promise.all([
+      fetchImageAsBlob(model_img_url),
+      fetchImageAsBlob(amazonImageUrl)
+    ]);
 
     const client = await Client.connect("Nymbo/Virtual-Try-On");
 
-    // Improved error handling with detailed error logging
     const result = await client.predict("/tryon", [
-      {"background":exampleImage,"layers":[],"composite":null}, 
+      { "background": exampleImage, "layers": [], "composite": null }, 
       exampleImage_a,
       "Hello!!",
       true,
@@ -55,7 +70,6 @@ app.post('/process-images', async (req, res) => {
       throw new Error(`Prediction Error: ${error.message || JSON.stringify(error)}`);
     });
 
-    // Return result
     res.json(result.data);
   } catch (error) {
     console.error('Error:', error);
