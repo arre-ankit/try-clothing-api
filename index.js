@@ -26,9 +26,44 @@ const fetchImageAsBlob = async (url) => {
   }
 };
 
+const extractUrl = (text) => {
+  // Regular expression to match URLs
+  const urlPattern = /https:\/\/amzn\.in\/d\/[^\s]+/;
+  const match = text.match(urlPattern);
+  return match ? match[0] : null;
+};
+
+const getFullUrl = async (shortenedUrl) => {
+  try {
+    const response = await axios.get(shortenedUrl, {
+      maxRedirects: 0,
+      validateStatus: status => status >= 200 && status < 400
+    });
+    return response.headers.location;
+  } catch (error) {
+    if (error.response && error.response.headers.location) {
+      return error.response.headers.location;
+    } else {
+      console.error('Error fetching the URL:', error.message);
+      return null;
+    }
+  }
+};
+
+const isAmazonUrl = (url) => {
+  return url && url.startsWith('https://www.amazon.in');
+};
+
 app.post('/process-images', async (req, res) => {
   try {
-    const { amazon_img_url, model_img_url } = req.body;
+    let { amazon_img_url, model_img_url } = req.body;
+
+    if (amazon_img_url && !isAmazonUrl(amazon_img_url)) {
+      const url = extractUrl(amazon_img_url);
+      if (url) {
+        amazon_img_url = await getFullUrl(url);
+      }
+    }
 
     // Fetch the Amazon page and extract the image URL with a timeout
     const amazonResponse = await axios.get(amazon_img_url, {
@@ -79,6 +114,6 @@ app.post('/process-images', async (req, res) => {
 
 app.listen(3005, () => {
     console.log('Backend service is running on port 3005');
-  });  
+});  
 
 export default app;
