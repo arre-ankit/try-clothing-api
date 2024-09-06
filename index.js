@@ -28,8 +28,8 @@ const fetchImageAsBlob = async (url) => {
 
 const extractUrl = (text) => {
   // Regular expression to match URLs
-  const urlPattern = /https:\/\/amzn\.in\/d\/[^\s]+/;
-  const match = text.match(urlPattern);
+  const amazonUrlPattern = /(https:\/\/(amzn\.in|www\.amazon\.in)\/[^\s]+)/;
+  const match = text.match(amazonUrlPattern);
   return match ? match[0] : null;
 };
 
@@ -50,18 +50,17 @@ const getFullUrl = async (shortenedUrl) => {
   }
 };
 
-const isAmazonUrl = (url) => {
-  return url && url.startsWith('https://www.amazon.in');
-};
 
 app.post('/process-images', async (req, res) => {
   try {
     let { amazon_img_url, model_img_url } = req.body;
 
-    if (amazon_img_url && !isAmazonUrl(amazon_img_url)) {
+    if (amazon_img_url) {
       const url = extractUrl(amazon_img_url);
+      //console.log('Extracted Amazon URL:', url);
       if (url) {
         amazon_img_url = await getFullUrl(url);
+        //console.log('Amazon URL:', amazon_img_url);
       }
     }
 
@@ -70,6 +69,8 @@ app.post('/process-images', async (req, res) => {
       timeout: 5000, // 5 seconds timeout
       headers: {
         // Include necessary headers
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Accept-Language': 'en-US,en;q=0.9',
       }
     });
 
