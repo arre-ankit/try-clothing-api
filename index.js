@@ -1,3 +1,5 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import express from 'express';
 import axios from 'axios';
 import cors from 'cors';
@@ -33,7 +35,9 @@ app.post('/process-images', async (req, res) => {
 
     // Fetch the Amazon page and extract the image URL with a timeout
     const amazonResponse = await axios.get(amazon_img_url, {
-      timeout: 5000, // 5 seconds timeout
+      headers:{
+        
+      }
     });
 
     const htmlContent = amazonResponse.data;
@@ -75,7 +79,8 @@ app.post('/process-images', async (req, res) => {
   }
 });
 
-app.listen(3005, () => {
+const port = process.env.PORT;
+app.listen(port, () => {
     console.log('Backend service is running on port 3005');
 });  
 
