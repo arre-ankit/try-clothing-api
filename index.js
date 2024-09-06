@@ -69,8 +69,9 @@ app.post('/process-images', async (req, res) => {
       timeout: 5000, // 5 seconds timeout
       headers: {
         // Include necessary headers
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Pixel 3 XL Build/QQ1D.200205.002) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Mobile Safari/537.36',
         'Accept-Language': 'en-US,en;q=0.9',
+        'Referer': 'https://www.amazon.in',
       }
     });
 
