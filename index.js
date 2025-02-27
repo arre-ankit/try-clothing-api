@@ -103,7 +103,7 @@ app.post('/process-images', async (req, res) => {
   }
 });
 
-app.listen(3005, () => {
+app.listen(4000, () => {
   console.log('Backend service is running on port 3005');
 });
 
