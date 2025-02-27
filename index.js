@@ -3,6 +3,8 @@ import axios from 'axios';
 import cors from 'cors';
 import { Client } from '@gradio/client';
 import { fal } from "@fal-ai/client";
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
 app.use(express.json({ limit: '10mb' }));
@@ -14,7 +16,7 @@ app.use(cors({
 }));
 
 fal.config({
-  credentials: 'f16e0d3b-feff-446c-94c8-7a14294965f1:b9b1d99e767b48610299647e61d0ae20'
+  credentials: process.env.FAL_AI_API
 });
 // Utility function to fetch and return blob data from a URL
 const fetchImageAsBlob = async (url, retries = 3) => {
